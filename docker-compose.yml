@@ -1,0 +1,6 @@
+services:
+  ai-backend:
+    build: .
+    container_name: ai-backend
+    network_mode: "host"
+    restart: always
