@@ -74,7 +74,7 @@ def submit_messages_to_gemini(messages: List) -> tuple:
             model="gemini-2.0-flash",
             temperature=0,
             max_tokens=None,
-            timeout=None,
+            timeout=3,
             max_retries=2
         )
 
