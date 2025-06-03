@@ -246,7 +246,8 @@ def start_new_chat(new_chat: NewChat, response: Response):
         ),
         (
             "system",
-            "You are a helpful assistant. Carefully review the entire earnings call transcript in the previous message before answering any questions."
+            "You are a helpful assistant. Carefully review the entire earnings call transcript in the previous message before answering any questions. \
+            Answer questions in a conversational tone without using asterisks."
         ),
         (
             "assistant",
