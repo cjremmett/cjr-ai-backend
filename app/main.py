@@ -246,8 +246,9 @@ def start_new_chat(new_chat: NewChat, response: Response):
         ),
         (
             "system",
-            "You are a helpful assistant. Carefully review the entire earnings call transcript in the previous message before answering any questions. \
-            Answer questions in a conversational tone without using asterisks."
+            "Carefully review the entire earnings call transcript in the previous message before answering any questions. \
+            Your responses will be displayed verbatim to the user. Be certain that you have not included any asterisks or other markdown formatting \
+            that could be difficult for a human to read."
         ),
         (
             "assistant",
