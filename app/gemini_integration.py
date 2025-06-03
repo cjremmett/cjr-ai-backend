@@ -75,7 +75,7 @@ def submit_messages_to_gemini(messages: List) -> tuple:
             temperature=0,
             max_tokens=None,
             timeout=3,
-            max_retries=2
+            max_retries=0
         )
 
         append_to_log('INFO', 'Submitting LangChain messages input to Gemini...')
