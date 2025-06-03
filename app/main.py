@@ -247,8 +247,8 @@ def start_new_chat(new_chat: NewChat, response: Response):
         (
             "system",
             "Carefully review the entire earnings call transcript in the previous message before answering any questions. \
-            Your responses will be displayed verbatim to the user. Be certain that you have not included any asterisks or other markdown formatting \
-            that could be difficult for a human to read."
+            Your response will be displayed as a string to the user. Format it such that it will be easy and convenient to read as a string. \
+            Carefully construct your response, ensuring it does not contain asterisks or bullet points."
         ),
         (
             "assistant",
