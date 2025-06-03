@@ -21,6 +21,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from utils import get_secrets_dict
 from utils import append_to_log
 from typing import List
+import signal
+TIMEOUT = 4
 
 
 def get_gemini_api_key() -> str:
@@ -67,7 +69,7 @@ def submit_prompt_to_gemini(prompt: str) -> str:
 
 def submit_messages_to_gemini(messages: List) -> tuple:
     """Returns the text response as the first element and the messages list with the response appended as the second element."""
-    try:
+    try:     
         ensure_api_key_environment_variable()
 
         llm = ChatGoogleGenerativeAI(
@@ -79,6 +81,11 @@ def submit_messages_to_gemini(messages: List) -> tuple:
         )
 
         append_to_log('INFO', 'Submitting LangChain messages input to Gemini...')
+
+        # This is ugly but I think the LangChain implementation for Gemini is bugged and it can hang forever
+        signal.signal(signal.SIGALRM, handler) 
+        signal.alarm(TIMEOUT) 
+
         ai_msg = llm.invoke(messages)
         append_to_log('INFO', 'Gemini responsed: ' + ai_msg.content)
         messages.append((
@@ -94,3 +101,10 @@ def submit_messages_to_gemini(messages: List) -> tuple:
             error_message
         ))
         return error_message, messages
+    finally: 
+            signal.alarm(0)  # Disable the alarm 
+
+
+# Define a handler for the timeout 
+def handler(signum, frame): 
+    raise TimeoutError("Time limit exceeded!") 
