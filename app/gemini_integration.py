@@ -65,7 +65,7 @@ def submit_prompt_to_gemini(prompt: str) -> str:
     return ai_msg.content
 
 
-async def submit_messages_to_gemini(messages: List) -> tuple:
+def submit_messages_to_gemini(messages: List) -> tuple:
     """Returns the text response as the first element and the messages list with the response appended as the second element."""
     try:
         ensure_api_key_environment_variable()
@@ -79,7 +79,7 @@ async def submit_messages_to_gemini(messages: List) -> tuple:
         )
 
         append_to_log('INFO', 'Submitting LangChain messages input to Gemini...')
-        ai_msg = await llm.invoke(messages)
+        ai_msg = llm.invoke(messages)
         append_to_log('INFO', 'Gemini responsed: ' + ai_msg.content)
         messages.append((
             "assistant",
