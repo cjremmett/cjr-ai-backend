@@ -22,7 +22,7 @@ from utils import get_secrets_dict
 from utils import append_to_log
 from typing import List
 import signal
-TIMEOUT = 4
+TIMEOUT = 6
 
 
 def get_gemini_api_key() -> str:
@@ -76,7 +76,7 @@ def submit_messages_to_gemini(messages: List) -> tuple:
             model="gemini-2.0-flash",
             temperature=0,
             max_tokens=None,
-            timeout=3,
+            timeout=5,
             max_retries=0
         )
 
