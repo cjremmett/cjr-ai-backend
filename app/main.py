@@ -279,8 +279,11 @@ def append_message_to_messages_list(role: str, message: str, messages: List) -> 
     return messages
 
 async def send_earnings_call_inquiry_message_to_user(sid: str, room: str, message: dict) -> None:
-    # Need to use json.dumps to send a string because the frontend cannot parse a dict
-    await sio.emit(room, json.dumps(message), sid)
+    try:
+        # Need to use json.dumps to send a string because the frontend cannot parse a dict
+        await sio.emit(room, json.dumps(message), sid)
+    except Exception as e:
+        append_to_log('ERROR', f'Failed to emit a message. Exception: ' + repr(e))
 
 @sio.on("earnings_call_transcript_chat_message")
 async def handle_earnings_call_transcript_chat_message(sid, data):
