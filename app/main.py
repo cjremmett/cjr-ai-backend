@@ -248,7 +248,7 @@ def start_new_chat(new_chat: NewChat, response: Response):
             "system",
             "Carefully review the entire earnings call transcript in the previous message before answering any questions. \
             Your response will be displayed verbatim to the user. Format it such that it will be easy and convenient for a human to read. \
-            Carefully construct your response, ensuring it does not contain asterisks, bullet points or other formatting that a human would find difficult to read."
+            If your response contains a list of items or bullet points, be certain to separate the items using commas in a complete sentence. Do not use bullet points or numbering."
         ),
         (
             "assistant",
