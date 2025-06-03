@@ -290,38 +290,41 @@ async def handle_earnings_call_transcript_chat_message(sid, data):
         "message": "Sample message."
     }
     """
-    ROOM = "earnings_call_transcript_chat_message"
-    ERROR_STRING = "A technical problem prevented us from processing your message. Please notify cjremmett@gmail.com about this."
-    append_to_log('TRACE', f"Received earnings call transcript chat message from userid {sid}. Their message is: {data}")
+    try:
+        ROOM = "earnings_call_transcript_chat_message"
+        ERROR_STRING = "A technical problem prevented us from processing your message. Please notify cjremmett@gmail.com about this."
+        append_to_log('TRACE', f"Received earnings call transcript chat message from userid {sid}. Their message is: {data}")
 
-    # Get the chat history. Notify user of error if we couldn't retrieve it.
-    chat = get_chat_without_messages(data['chatid'])
-    if chat == None:
-        await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
-        return
-    messages_history = retrieve_earnings_call_inquiry_message_thread_from_database(data['chatid'])
-    if messages_history == None or len(messages_history) < 3:
-        await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
-        return
-    
-    # Append the user message to the list
-    append_message_to_messages_list('user', data['message'], messages_history)
+        # Get the chat history. Notify user of error if we couldn't retrieve it.
+        chat = get_chat_without_messages(data['chatid'])
+        if chat == None:
+            await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
+            return
+        messages_history = retrieve_earnings_call_inquiry_message_thread_from_database(data['chatid'])
+        if messages_history == None or len(messages_history) < 3:
+            await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
+            return
+        
+        # Append the user message to the list
+        append_message_to_messages_list('user', data['message'], messages_history)
 
-    # Send message back to user to load into the view
-    await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'user', 'chatid': chat['chatid'], "message": data['message']})
-    
-    # Store updated message thread in database
-    store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
+        # Send message back to user to load into the view
+        await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'user', 'chatid': chat['chatid'], "message": data['message']})
+        
+        # Store updated message thread in database
+        store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
 
-    # Call the AI to get a response to the user message
-    ai_response = submit_messages_to_gemini(messages_history)
-    append_to_log('DEBUG', 'AI responded with: ' + ai_response[0])
+        # Call the AI to get a response to the user message
+        ai_response = submit_messages_to_gemini(messages_history)
+        append_to_log('DEBUG', 'AI responded with: ' + ai_response[0])
 
-    # Store updated message thread in database
-    store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
+        # Store updated message thread in database
+        store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
 
-    # Send AI response to the user
-    await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'assistant', 'chatid': chat['chatid'], "message": ai_response[0]})
+        # Send AI response to the user
+        await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'assistant', 'chatid': chat['chatid'], "message": ai_response[0]})
+    except Exception as e:
+        append_to_log('ERROR', f'Failed to handle a new user message. Exception: ' + repr(e))
 
 ### Log SocketIO connections and disconnections ###
 @sio.on("connect")
