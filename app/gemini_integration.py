@@ -65,24 +65,32 @@ def submit_prompt_to_gemini(prompt: str) -> str:
     return ai_msg.content
 
 
-def submit_messages_to_gemini(messages: List) -> tuple:
+async def submit_messages_to_gemini(messages: List) -> tuple:
     """Returns the text response as the first element and the messages list with the response appended as the second element."""
-    
-    ensure_api_key_environment_variable()
+    try:
+        ensure_api_key_environment_variable()
 
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
-        temperature=0,
-        max_tokens=None,
-        timeout=None,
-        max_retries=2
-    )
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            temperature=0,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2
+        )
 
-    append_to_log('INFO', 'Submitting LangChain messages input to Gemini...')
-    ai_msg = llm.invoke(messages)
-    append_to_log('INFO', 'Gemini responsed: ' + ai_msg.content)
-    messages.append((
-        "assistant",
-        ai_msg.content
-    ))
-    return ai_msg.content, messages
+        append_to_log('INFO', 'Submitting LangChain messages input to Gemini...')
+        ai_msg = await llm.invoke(messages)
+        append_to_log('INFO', 'Gemini responsed: ' + ai_msg.content)
+        messages.append((
+            "assistant",
+            ai_msg.content
+        ))
+        return ai_msg.content, messages
+    except Exception as e:
+        append_to_log('ERROR', 'Exception thrown submitting messages to Gemini: ' + repr(e))
+        error_message = "We're sorry, the AI model returned an error message. Please try again later."
+        messages.append((
+            "assistant",
+            error_message
+        ))
+        return error_message, messages

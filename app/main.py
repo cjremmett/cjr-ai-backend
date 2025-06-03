@@ -313,7 +313,7 @@ async def handle_earnings_call_transcript_chat_message(sid, data):
     store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
 
     # Call the AI to get a response to the user message
-    ai_response = submit_messages_to_gemini(messages_history)
+    ai_response = await submit_messages_to_gemini(messages_history)
     append_to_log('DEBUG', 'AI responded with: ' + ai_response[0])
 
     # Store updated message thread in database
