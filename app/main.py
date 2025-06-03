@@ -278,9 +278,9 @@ def append_message_to_messages_list(role: str, message: str, messages: List) -> 
     messages.append((role, message))
     return messages
 
-async def send_earnings_call_inquiry_message_to_user(room: str, message: dict) -> None:
+async def send_earnings_call_inquiry_message_to_user(sid: str, room: str, message: dict) -> None:
     # Need to use json.dumps to send a string because the frontend cannot parse a dict
-    await sio.emit(room, json.dumps(message))
+    await sio.emit(room, json.dumps(message), sid)
 
 @sio.on("earnings_call_transcript_chat_message")
 async def handle_earnings_call_transcript_chat_message(sid, data):
@@ -297,18 +297,18 @@ async def handle_earnings_call_transcript_chat_message(sid, data):
     # Get the chat history. Notify user of error if we couldn't retrieve it.
     chat = get_chat_without_messages(data['chatid'])
     if chat == None:
-        await send_earnings_call_inquiry_message_to_user(ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
+        await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
         return
     messages_history = retrieve_earnings_call_inquiry_message_thread_from_database(data['chatid'])
     if messages_history == None or len(messages_history) < 3:
-        await send_earnings_call_inquiry_message_to_user(ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
+        await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'system', 'chatid': data['chatid'], 'message': ERROR_STRING})
         return
     
     # Append the user message to the list
     append_message_to_messages_list('user', data['message'], messages_history)
 
     # Send message back to user to load into the view
-    await send_earnings_call_inquiry_message_to_user(ROOM, {'role': 'user', 'chatid': chat['chatid'], "message": data['message']})
+    await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'user', 'chatid': chat['chatid'], "message": data['message']})
     
     # Store updated message thread in database
     store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
@@ -321,7 +321,7 @@ async def handle_earnings_call_transcript_chat_message(sid, data):
     store_earnings_call_inquiry_message_thread_to_database(chat['userid'], chat['chatid'], chat['ticker'], chat['quarter'], chat['year'], messages_history)
 
     # Send AI response to the user
-    await send_earnings_call_inquiry_message_to_user(ROOM, {'role': 'assistant', 'chatid': chat['chatid'], "message": ai_response[0]})
+    await send_earnings_call_inquiry_message_to_user(sid, ROOM, {'role': 'assistant', 'chatid': chat['chatid'], "message": ai_response[0]})
 
 ### Log SocketIO connections and disconnections ###
 @sio.on("connect")
