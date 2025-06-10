@@ -1,6 +1,6 @@
 import requests
 from utils import append_to_log, get_finance_token
-BASE_URL = 'https://cjremmett.com/flask/finance/get-earnings-call-transcript'
+BASE_URL = 'https://cjremmett.com/finance-api/get-earnings-call-transcript'
 
 
 def get_earnings_call_transcript(ticker: str, year: int, quarter: int) -> str:
